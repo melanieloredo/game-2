@@ -2,14 +2,28 @@
 #include "bn_keypad.h"
 #include "bn_sprite_animate_actions.h"
 #include "bn_sprite_items_ninja.h"
+#include "bn_sprite_items_coin_animated.h"
+#include "bn_random.h"
+#include "bn_sound_items.h"
 
 void sprites_animation_actions_scene() {
+    bn::random random_generator;
+
+    // Create the player sprite
     bn::sprite_ptr ninja_sprite = bn::sprite_items::ninja.create_sprite(0, 0);
+    
+    // Create an animated coin sprite
+    bn::sprite_ptr coin_sprite = bn::sprite_items::coin_animated.create_sprite(
+        random_generator.get_int(-110, 110), random_generator.get_int(-80, 80)
+    );
 
-    // Default standing frame (single frame, not animated)
-    ninja_sprite.set_tiles(bn::sprite_items::ninja.tiles_item(), 0);
+    // Create animation action for the coin (looping through frames 0-3)
+    bn::sprite_animate_action<4> coin_animation = bn::create_sprite_animate_action_forever(
+        coin_sprite, 8, bn::sprite_items::coin_animated.tiles_item(), 0, 1, 2, 3
+    );
 
-    bn::optional<bn::sprite_animate_action<4>> action; // Store active animation
+    // Animation variables
+    bn::optional<bn::sprite_animate_action<4>> action;
     int last_direction = 3; // Default to facing forward (down)
 
     while (!bn::keypad::start_pressed()) {
@@ -19,7 +33,7 @@ void sprites_animation_actions_scene() {
         bool move_up = bn::keypad::up_held();
         bool move_down = bn::keypad::down_held();
 
-        // If two opposite directions are pressed, stop movement**
+        // If two opposite directions are pressed, stop movement
         if ((move_left && move_right) || (move_up && move_down)) {
             move_left = move_right = move_up = move_down = false;
         }
@@ -49,9 +63,9 @@ void sprites_animation_actions_scene() {
             moving = true;
         }
 
-        // Play animation based on movement direction
+        // Play animation when moving
         if (moving) {
-            if (new_direction != last_direction) {
+            if (new_direction != last_direction || !action.has_value()) {
                 if (new_direction == 0) { // Left
                     action = bn::create_sprite_animate_action_forever(
                         ninja_sprite, 6, bn::sprite_items::ninja.tiles_item(), 8, 9, 10, 11);
@@ -70,9 +84,7 @@ void sprites_animation_actions_scene() {
                 }
                 last_direction = new_direction;
             }
-            if (action.has_value()) {
-                action->update(); // Only update if valid
-            }
+            action->update(); // Update animation
         }
 
         // If no movement, set standing frame based on last movement direction
@@ -87,13 +99,28 @@ void sprites_animation_actions_scene() {
             }
         }
 
+        // **Update animated coin**
+        coin_animation.update();
+
+        // **Check for Collision & Respawn Coin**
+        int dx = ninja_sprite.x().integer() - coin_sprite.x().integer();
+        int dy = ninja_sprite.y().integer() - coin_sprite.y().integer();
+        int distance_squared = (dx * dx) + (dy * dy);
+
+        if (distance_squared < 16) { // Collision detected
+            bn::sound_items::coin.play(); // Play the coin sound
+            
+            // Respawn the coin
+            coin_sprite.set_x(random_generator.get_int(-110, 110));
+            coin_sprite.set_y(random_generator.get_int(-80, 80));
+        }
+
         bn::core::update();
     }
 }
 
 int main() {
     bn::core::init();
-
     while (true) {
         sprites_animation_actions_scene();
         bn::core::update();
