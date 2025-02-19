@@ -2,6 +2,7 @@
 #include "bn_keypad.h"
 #include "bn_sprite_animate_actions.h"
 #include "bn_sprite_items_ninja.h"
+#include "bn_sprite_items_lamb.h"
 #include "bn_sprite_items_coin_animated.h"
 #include "bn_random.h"
 #include "bn_sound_items.h"
@@ -10,8 +11,9 @@ void sprites_animation_actions_scene() {
     bn::random random_generator;
 
     // Create the player sprite
-    bn::sprite_ptr ninja_sprite = bn::sprite_items::ninja.create_sprite(0, 0);
-    
+    bn::sprite_ptr lamb_sprite = bn::sprite_items::lamb.create_sprite(0, 0);
+    lamb_sprite.set_scale(1); //set correct size for 32
+
     // Create an animated coin sprite
     bn::sprite_ptr coin_sprite = bn::sprite_items::coin_animated.create_sprite(
         random_generator.get_int(-110, 110), random_generator.get_int(-80, 80)
@@ -47,19 +49,19 @@ void sprites_animation_actions_scene() {
 
         // Move and set animations
         if (move_left) {
-            ninja_sprite.set_x(ninja_sprite.x() - 1);
+            lamb_sprite.set_x(lamb_sprite.x() - 1);
             moving = true;
         }
         if (move_right) {
-            ninja_sprite.set_x(ninja_sprite.x() + 1);
+            lamb_sprite.set_x(lamb_sprite.x() + 1);
             moving = true;
         }
         if (move_up) {
-            ninja_sprite.set_y(ninja_sprite.y() - 1);
+            lamb_sprite.set_y(lamb_sprite.y() - 1);
             moving = true;
         }
         if (move_down) {
-            ninja_sprite.set_y(ninja_sprite.y() + 1);
+            lamb_sprite.set_y(lamb_sprite.y() + 1);
             moving = true;
         }
 
@@ -68,19 +70,19 @@ void sprites_animation_actions_scene() {
             if (new_direction != last_direction || !action.has_value()) {
                 if (new_direction == 0) { // Left
                     action = bn::create_sprite_animate_action_forever(
-                        ninja_sprite, 6, bn::sprite_items::ninja.tiles_item(), 8, 9, 10, 11);
+                        lamb_sprite, 6, bn::sprite_items::lamb.tiles_item(), 8, 9, 10, 11);
                 } 
                 else if (new_direction == 1) { // Right
                     action = bn::create_sprite_animate_action_forever(
-                        ninja_sprite, 6, bn::sprite_items::ninja.tiles_item(), 12, 13, 14, 15);
+                        lamb_sprite, 6, bn::sprite_items::lamb.tiles_item(), 12, 13, 14, 15);
                 } 
                 else if (new_direction == 2) { // Up
                     action = bn::create_sprite_animate_action_forever(
-                        ninja_sprite, 6, bn::sprite_items::ninja.tiles_item(), 4, 5, 6, 7);
+                        lamb_sprite, 6, bn::sprite_items::lamb.tiles_item(), 4, 5, 6, 7);
                 } 
                 else if (new_direction == 3) { // Down
                     action = bn::create_sprite_animate_action_forever(
-                        ninja_sprite, 6, bn::sprite_items::ninja.tiles_item(), 0, 1, 2, 3);
+                        lamb_sprite, 6, bn::sprite_items::lamb.tiles_item(), 0, 1, 2, 3);
                 }
                 last_direction = new_direction;
             }
@@ -95,7 +97,7 @@ void sprites_animation_actions_scene() {
                                : (last_direction == 1) ? 12 // Right
                                : (last_direction == 2) ? 4  // Up
                                : 0; // Down (default)
-                ninja_sprite.set_tiles(bn::sprite_items::ninja.tiles_item(), idle_frame);
+                lamb_sprite.set_tiles(bn::sprite_items::lamb.tiles_item(), idle_frame);
             }
         }
 
@@ -103,11 +105,11 @@ void sprites_animation_actions_scene() {
         coin_animation.update();
 
         // **Check for Collision & Respawn Coin**
-        int dx = ninja_sprite.x().integer() - coin_sprite.x().integer();
-        int dy = ninja_sprite.y().integer() - coin_sprite.y().integer();
+        int dx = lamb_sprite.x().integer() - coin_sprite.x().integer();
+        int dy = lamb_sprite.y().integer() - coin_sprite.y().integer();
         int distance_squared = (dx * dx) + (dy * dy);
 
-        if (distance_squared < 16) { // Collision detected
+        if (distance_squared < 32) { // Collision detected
             bn::sound_items::coin.play(); // Play the coin sound
             
             // Respawn the coin
