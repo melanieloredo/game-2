@@ -1,15 +1,20 @@
 #include "bn_core.h"
 #include "bn_keypad.h"
 #include "bn_sprite_animate_actions.h"
-#include "bn_sprite_items_ninja.h"
+//#include "bn_sprite_items_ninja.h"
 #include "bn_sprite_items_lamb.h"
 #include "bn_sprite_items_coin_animated.h"
 #include "bn_random.h"
 #include "bn_sound_items.h"
+#include "bn_regular_bg_position_hbe_ptr.h"
+#include "bn_regular_bg_items_room1_bg.h"
 
 void sprites_animation_actions_scene() {
     bn::random random_generator;
 
+    //create background
+    bn::regular_bg_ptr bg = bn::regular_bg_items::room1_bg.create_bg(0, 0);
+    
     // Create the player sprite
     bn::sprite_ptr lamb_sprite = bn::sprite_items::lamb.create_sprite(0, 0);
     lamb_sprite.set_scale(1); //set correct size for 32
