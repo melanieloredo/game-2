@@ -24,9 +24,9 @@ void sprites_animation_actions_scene() {
         random_generator.get_int(-110, 110), random_generator.get_int(-80, 80)
     );
 
-    // Create animation action for the coin (looping through frames 0-3)
-    bn::sprite_animate_action<4> coin_animation = bn::create_sprite_animate_action_forever(
-        coin_sprite, 8, bn::sprite_items::coin_animated.tiles_item(), 0, 1, 2, 3
+    // Create animation action for the coin (looping through frames 0-7)
+    bn::sprite_animate_action<8> coin_animation = bn::create_sprite_animate_action_forever(
+        coin_sprite, 10, bn::sprite_items::coin_animated.tiles_item(), 0, 1, 2, 3, 4, 5, 6, 7
     );
 
     // Animation variables
