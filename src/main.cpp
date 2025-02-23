@@ -9,9 +9,7 @@
 #include "bn_regular_bg_position_hbe_ptr.h"
 #include "bn_regular_bg_items_room1_bg.h"
 
-void sprites_animation_actions_scene() {
-    bn::random random_generator;
-
+void sprites_animation_actions_scene(bn::random randGen) {
     //create background
     bn::regular_bg_ptr bg = bn::regular_bg_items::room1_bg.create_bg(0, 0);
     
@@ -21,7 +19,7 @@ void sprites_animation_actions_scene() {
 
     // Create an animated coin sprite
     bn::sprite_ptr coin_sprite = bn::sprite_items::coin_animated.create_sprite(
-        random_generator.get_int(-110, 110), random_generator.get_int(-80, 80)
+        randGen.get_int(-110, 110), randGen.get_int(-80, 80)
     );
 
     // Create animation action for the coin (looping through frames 0-7)
@@ -39,6 +37,8 @@ void sprites_animation_actions_scene() {
         bool move_right = bn::keypad::right_held();
         bool move_up = bn::keypad::up_held();
         bool move_down = bn::keypad::down_held();
+
+        randGen.get();
 
         // If two opposite directions are pressed, stop movement
         if ((move_left && move_right) || (move_up && move_down)) {
@@ -118,8 +118,8 @@ void sprites_animation_actions_scene() {
             bn::sound_items::coin.play(); // Play the coin sound
             
             // Respawn the coin
-            coin_sprite.set_x(random_generator.get_int(-110, 110));
-            coin_sprite.set_y(random_generator.get_int(-80, 80));
+            coin_sprite.set_x(randGen.get_int(-110, 110));
+            coin_sprite.set_y(randGen.get_int(-80, 80));
         }
 
         bn::core::update();
@@ -127,9 +127,11 @@ void sprites_animation_actions_scene() {
 }
 
 int main() {
+    bn::random random_generator;
     bn::core::init();
     while (true) {
-        sprites_animation_actions_scene();
+        random_generator.get();
+        sprites_animation_actions_scene(random_generator);
         bn::core::update();
     }
 }
